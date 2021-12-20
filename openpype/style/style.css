@@ -1161,6 +1161,9 @@ QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
 #ShadowWidget {
     font-size: 36pt;
 }
+#OverlayFrame {
+    background: rgba(0, 0, 0, 127);
+}
 
 #BreadcrumbsPathInput {
     padding: 2px;
