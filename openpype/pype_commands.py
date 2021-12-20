@@ -80,6 +80,11 @@ class PypeCommands:
         standalonepublish.main()
 
     @staticmethod
+    def launch_new_standalone_publisher():
+        from openpype.tools import new_standalonepublish
+        new_standalonepublish.main()
+
+    @staticmethod
     def publish(paths, targets=None, gui=False):
         """Start headless publishing.
 

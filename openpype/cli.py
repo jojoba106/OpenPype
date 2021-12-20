@@ -43,6 +43,12 @@ def standalonepublisher():
 
 
 @main.command()
+def newstandalonepublisher():
+    """Show new OpenPype Standalone publisher UI."""
+    PypeCommands().launch_new_standalone_publisher()
+
+
+@main.command()
 @click.option("-d", "--debug",
               is_flag=True, help=("Run pype tray in debug mode"))
 def tray(debug=False):
