@@ -374,6 +374,29 @@ class FilesWidget(QtWidgets.QFrame):
 
         self._remove_item_by_ids(items_to_delete)
 
+    def sizeHint(self):
+        # Get size hints of widget and visible widgets
+        result = super(FilesWidget, self).sizeHint()
+        if not self._files_view.isVisible():
+            not_visible_hint = self._files_view.sizeHint()
+        else:
+            not_visible_hint = self._empty_widget.sizeHint()
+
+        # Get margins of this widget
+        margins = self.layout().contentsMargins()
+
+        # Change size hint based on result of maximum size hint of widgets
+        result.setWidth(max(
+            result.width(),
+            not_visible_hint.width() + margins.left() + margins.right()
+        ))
+        result.setHeight(max(
+            result.height(),
+            not_visible_hint.height() + margins.top() + margins.bottom()
+        ))
+
+        return result
+
     def dragEnterEvent(self, event):
         mime_data = event.mimeData()
         if mime_data.hasUrls():
