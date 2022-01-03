@@ -38,17 +38,28 @@ class StandaloneOverlayWidget(QtWidgets.QFrame):
             QtWidgets.QAbstractItemView.NoEditTriggers
         )
 
+        confirm_btn = QtWidgets.QPushButton("Choose", self)
+        btns_layout = QtWidgets.QHBoxLayout()
+        btns_layout.addStretch(1)
+        btns_layout.addWidget(confirm_btn, 0)
+
         layout = QtWidgets.QGridLayout(self)
         layout.addWidget(header_label, 0, 1, alignment=QtCore.Qt.AlignCenter)
         layout.addWidget(projects_view, 1, 1)
+        layout.addLayout(btns_layout, 2, 1)
         layout.setColumnStretch(0, 1)
         layout.setColumnStretch(1, 0)
         layout.setColumnStretch(2, 1)
+        layout.setRowStretch(0, 0)
+        layout.setRowStretch(1, 1)
+        layout.setRowStretch(2, 0)
 
         projects_view.doubleClicked.connect(self._on_double_click)
+        confirm_btn.clicked.connect(self._on_confirm_click)
 
         self._projects_view = projects_view
         self._projects_model = projects_model
+        self._confirm_btn = confirm_btn
 
         self._publisher_window = publisher_window
 
@@ -68,6 +79,9 @@ class StandaloneOverlayWidget(QtWidgets.QFrame):
         super(StandaloneOverlayWidget, self).showEvent(event)
 
     def _on_double_click(self):
+        self.set_selected_project()
+
+    def _on_confirm_click(self):
         self.set_selected_project()
 
     def set_selected_project(self):
