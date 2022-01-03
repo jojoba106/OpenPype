@@ -30,6 +30,7 @@ class PixmapLabel(QtWidgets.QLabel):
     """Label resizing image to height of font."""
     def __init__(self, pixmap, parent):
         super(PixmapLabel, self).__init__(parent)
+        self._empty_pixmap = QtGui.QPixmap(0, 0)
         self._source_pixmap = pixmap
 
     def set_source_pixmap(self, pixmap):
@@ -37,13 +38,20 @@ class PixmapLabel(QtWidgets.QLabel):
         self._source_pixmap = pixmap
         self._set_resized_pix()
 
-    def _set_resized_pix(self):
+    def _get_pix_size(self):
         size = self.fontMetrics().height()
         size += size % 2
+        return size, size
+
+    def _set_resized_pix(self):
+        if self._source_pixmap is None:
+            self.setPixmap(self._empty_pixmap)
+            return
+        width, height = self._get_pix_size()
         self.setPixmap(
             self._source_pixmap.scaled(
-                size,
-                size,
+                width,
+                height,
                 QtCore.Qt.KeepAspectRatio,
                 QtCore.Qt.SmoothTransformation
             )
