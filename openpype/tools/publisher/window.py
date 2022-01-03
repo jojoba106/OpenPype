@@ -120,12 +120,16 @@ class PublisherWindow(QtWidgets.QDialog):
         subset_view_btns_layout.addWidget(change_view_btn)
 
         # Layout of view and buttons
-        subset_view_layout = QtWidgets.QVBoxLayout()
+        # - widget 'subset_view_widget' is necessary
+        # - only layout won't be resized automatically to minimum size hint
+        #   on child resize request!
+        subset_view_widget = QtWidgets.QWidget(subset_views_widget)
+        subset_view_layout = QtWidgets.QVBoxLayout(subset_view_widget)
         subset_view_layout.setContentsMargins(0, 0, 0, 0)
         subset_view_layout.addLayout(subset_views_layout, 1)
         subset_view_layout.addLayout(subset_view_btns_layout, 0)
 
-        subset_views_widget.set_center_widget(subset_view_layout)
+        subset_views_widget.set_center_widget(subset_view_widget)
 
         # Whole subset layout with attributes and details
         subset_content_widget = QtWidgets.QWidget(subset_frame)
@@ -385,6 +389,12 @@ class PublisherWindow(QtWidgets.QDialog):
 
         context_title = self.controller.get_context_title()
         self.set_context_label(context_title)
+
+        # Give a change to process Resize Request
+        QtWidgets.QApplication.processEvents()
+        # Trigger update geometry of
+        widget = self.subset_views_layout.currentWidget()
+        widget.updateGeometry()
 
     def _on_subset_change(self, *_args):
         # Ignore changes if in middle of refreshing
