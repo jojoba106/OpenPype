@@ -70,7 +70,7 @@ class HostContext:
 
     @classmethod
     def get_instances(cls):
-        return cls._get_data("instances")
+        return cls._get_data("instances") or []
 
     @classmethod
     def save_instances(cls, instances):
@@ -78,7 +78,7 @@ class HostContext:
 
     @classmethod
     def get_context_data(cls):
-        return cls._get_data("context")
+        return cls._get_data("context") or {}
 
     @classmethod
     def save_context_data(cls, data):
