@@ -15,6 +15,7 @@ from openpype.pipeline.create import (
 )
 
 from .widgets import IconValuePixmapLabel
+from .files_widget import FilesWidget
 from ..constants import (
     VARIANT_TOOLTIP,
     CREATOR_IDENTIFIER_ROLE,
@@ -202,7 +203,10 @@ class CreateDialog(QtWidgets.QDialog):
         self._name_pattern = name_pattern
         self._compiled_name_pattern = re.compile(name_pattern)
 
+        files_widget = FilesWidget(self)
+
         creator_description_widget = CreatorDescriptionWidget(self)
+        creator_description_widget.setVisible(False)
 
         creators_view = QtWidgets.QListView(self)
         creators_model = QtGui.QStandardItemModel()
@@ -245,6 +249,7 @@ class CreateDialog(QtWidgets.QDialog):
         layout.addLayout(left_layout, 0)
         layout.addSpacing(5)
         layout.addWidget(creator_description_widget, 1)
+        layout.addWidget(files_widget, 1)
 
         create_btn.clicked.connect(self._on_create)
         variant_input.returnPressed.connect(self._on_create)
@@ -256,6 +261,7 @@ class CreateDialog(QtWidgets.QDialog):
 
         controller.add_plugins_refresh_callback(self._on_plugins_refresh)
 
+        self._files_widget = files_widget
         self.creator_description_widget = creator_description_widget
 
         self.subset_name_input = subset_name_input
