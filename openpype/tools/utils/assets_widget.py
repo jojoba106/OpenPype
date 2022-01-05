@@ -638,6 +638,7 @@ class AssetsWidget(QtWidgets.QWidget):
         current_asset_btn.clicked.connect(self.set_current_session_asset)
         view.doubleClicked.connect(self.double_clicked)
 
+        self._refresh_btn = refresh_btn
         self._current_asset_btn = current_asset_btn
         self._model = model
         self._proxy = proxy
@@ -672,6 +673,16 @@ class AssetsWidget(QtWidgets.QWidget):
         asset_name = self.dbcon.Session.get("AVALON_ASSET")
         if asset_name:
             self.select_asset_by_name(asset_name)
+
+    def set_refresh_btn_visibility(self, visible=None):
+        """Hide set refresh button.
+
+        Some tools may have their global refresh button or do not support
+        refresh at all.
+        """
+        if visible is None:
+            visible = not self._refresh_btn.isVisible()
+        self._refresh_btn.setVisible(visible)
 
     def set_current_asset_btn_visibility(self, visible=None):
         """Hide set current asset button.
