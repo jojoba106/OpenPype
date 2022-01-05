@@ -389,6 +389,13 @@ class FilesWidget(QtWidgets.QFrame):
 
         self._widgets_by_id = {}
 
+    def set_filters(self, folders_allowed, exts_filter):
+        self._files_proxy_model.set_allow_folders(folders_allowed)
+        self._files_proxy_model.set_allowed_extensions(exts_filter)
+        enabled = folders_allowed or exts_filter is not None
+        self._empty_widget.set_enabled(enabled)
+        self.setEnabled(enabled)
+
     def _on_rows_inserted(self, parent_index, start_row, end_row):
         for row in range(start_row, end_row + 1):
             index = self._files_proxy_model.index(row, 0, parent_index)
