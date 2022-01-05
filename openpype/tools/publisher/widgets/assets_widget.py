@@ -16,11 +16,17 @@ class CreateDialogAssetsWidget(SingleSelectAssetsWidget):
         super(CreateDialogAssetsWidget, self).__init__(None, parent)
 
         self.set_refresh_btn_visibility(False)
-        self.set_current_asset_btn_visibility(True)
+        self.set_current_asset_btn_visibility(False)
+
+        self._current_asset_name = None
+
+    def set_current_asset_name(self, asset_name):
+        self._current_asset_name = asset_name
+        # Hide set current asset if there is no one
+        self.set_current_asset_btn_visibility(asset_name is not None)
 
     def _get_current_session_asset(self):
-        # TODO Current should be retrieved from controller
-        return avalon.api.Session.get("AVALON_ASSET")
+        return self._current_asset_name
 
     def _create_source_model(self):
         return AssetsHierarchyModel(self._controller)
@@ -28,11 +34,6 @@ class CreateDialogAssetsWidget(SingleSelectAssetsWidget):
     def _refresh_model(self):
         self._model.reset()
         self._on_model_refresh(self._model.rowCount() > 0)
-
-        # Hide set current asset if there is no one
-        self.set_current_asset_btn_visibility(
-            self._get_current_session_asset() is not None
-        )
 
 
 class AssetsHierarchyModel(QtGui.QStandardItemModel):

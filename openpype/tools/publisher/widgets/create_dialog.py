@@ -300,6 +300,7 @@ class CreateDialog(QtWidgets.QDialog):
             self._prereq_available = False
         else:
             self._context_widget.select_asset_by_name(self._asset_doc["name"])
+        self._assets_widget.set_current_asset_name(self._asset_name)
 
         if self.creators_model.rowCount() < 1:
             self._prereq_available = False
