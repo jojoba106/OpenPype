@@ -19,7 +19,8 @@ ITEM_LABEL_ROLE = QtCore.Qt.UserRole + 2
 ITEM_ICON_ROLE = QtCore.Qt.UserRole + 3
 FILENAMES_ROLE = QtCore.Qt.UserRole + 4
 DIRPATH_ROLE = QtCore.Qt.UserRole + 5
-EXT_ROLE = QtCore.Qt.UserRole + 6
+IS_DIR_ROLE = QtCore.Qt.UserRole + 6
+EXT_ROLE = QtCore.Qt.UserRole + 7
 
 
 class DropEmpty(QtWidgets.QWidget):
@@ -213,12 +214,25 @@ class FilesModel(QtGui.QStandardItemModel):
             self.invisibleRootItem().appendRows(new_items)
 
     def _create_item(self, label, filenames, dirpath, icon_pixmap=None):
+        first_filename = None
+        for filename in filenames:
+            first_filename = filename
+            break
+        ext = os.path.splitext(first_filename)[-1]
+        is_dir = False
+        if len(filenames) == 1:
+            filepath = os.path.join(dirpath, first_filename)
+            is_dir = os.path.isdir(filepath)
+
         item = QtGui.QStandardItem()
         item.setData(str(uuid.uuid4()), ITEM_ID_ROLE)
         item.setData(label, ITEM_LABEL_ROLE)
         item.setData(filenames, FILENAMES_ROLE)
         item.setData(dirpath, DIRPATH_ROLE)
         item.setData(icon_pixmap, ITEM_ICON_ROLE)
+        item.setData(ext, EXT_ROLE)
+        item.setData(is_dir, IS_DIR_ROLE)
+
         return item
 
 
