@@ -417,8 +417,16 @@ class CreateDialog(QtWidgets.QDialog):
 
         self._selected_creator = creator
         if not creator:
+            self._files_widget.set_file_filters(False, None)
+            self._context_widget.setEnabled(False)
             return
 
+        self._context_widget.setEnabled(creator.create_allow_context_change)
+
+        self._files_widget.set_filters(
+            creator.allow_folders,
+            creator.allowed_filename_exts
+        )
         default_variants = creator.get_default_variants()
         if not default_variants:
             default_variants = ["Main"]
