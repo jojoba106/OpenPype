@@ -237,6 +237,45 @@ class FilesModel(QtGui.QStandardItemModel):
 
 
 class FilesProxyModel(QtCore.QSortFilterProxyModel):
+    def __init__(self, *args, **kwargs):
+        super(FilesProxyModel, self).__init__(*args, **kwargs)
+        self._allow_folders = False
+        self._allowed_extensions = None
+
+    def set_allow_folders(self, allow=None):
+        if allow is None:
+            allow = not self._allow_folders
+
+        if allow == self._allow_folders:
+            return
+        self._allow_folders = allow
+        self.invalidateFilter()
+
+    def set_allowed_extensions(self, extensions=None):
+        if extensions is not None:
+            extensions = set(extensions)
+
+        if self._allowed_extensions != extensions:
+            self._allowed_extensions = extensions
+            self.invalidateFilter()
+
+    def filterAcceptsRow(self, row, parent_index):
+        model = self.sourceModel()
+        index = model.index(row, self.filterKeyColumn(), parent_index)
+        # First check if item is folder and if folders are enabled
+        if index.data(IS_DIR_ROLE):
+            if not self._allow_folders:
+                return False
+            return True
+
+        # Check if there are any allowed extensions
+        if self._allowed_extensions is None:
+            return False
+
+        if index.data(EXT_ROLE) not in self._allowed_extensions:
+            return False
+        return True
+
     def lessThan(self, left, right):
         left_comparison = left.data(DIRPATH_ROLE)
         right_comparison = right.data(DIRPATH_ROLE)
