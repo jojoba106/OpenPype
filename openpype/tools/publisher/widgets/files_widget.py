@@ -375,6 +375,7 @@ class FilesWidget(QtWidgets.QFrame):
         files_view.setVisible(False)
 
         layout = QtWidgets.QHBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(empty_widget, 1)
         layout.addWidget(files_view, 1)
 
