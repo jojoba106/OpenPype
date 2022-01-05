@@ -16,6 +16,7 @@ from openpype.pipeline.create import (
 
 from .widgets import IconValuePixmapLabel
 from .assets_widget import CreateDialogAssetsWidget
+from .tasks_widget import CreateDialogTasksWidget
 from .files_widget import FilesWidget
 from ..constants import (
     VARIANT_TOOLTIP,
@@ -204,7 +205,16 @@ class CreateDialog(QtWidgets.QDialog):
         self._name_pattern = name_pattern
         self._compiled_name_pattern = re.compile(name_pattern)
 
-        context_widget = CreateDialogAssetsWidget(controller, self)
+        context_widget = QtWidgets.QWidget(self)
+
+        assets_widget = CreateDialogAssetsWidget(controller, context_widget)
+        tasks_widget = CreateDialogTasksWidget(controller, context_widget)
+
+        context_layout = QtWidgets.QVBoxLayout(context_widget)
+        context_layout.setContentsMargins(0, 0, 0, 0)
+        context_layout.addWidget(assets_widget, 2)
+        context_layout.addWidget(tasks_widget, 1)
+
         files_widget = FilesWidget(self)
 
         creator_description_widget = CreatorDescriptionWidget(self)
@@ -262,11 +272,14 @@ class CreateDialog(QtWidgets.QDialog):
             self._on_item_change
         )
         variant_hints_menu.triggered.connect(self._on_variant_action)
+        assets_widget.selection_changed.connect(self._on_asset_change)
 
         controller.add_plugins_refresh_callback(self._on_plugins_refresh)
 
         self._files_widget = files_widget
         self._context_widget = context_widget
+        self._assets_widget = assets_widget
+        self._tasks_widget = tasks_widget
         self.creator_description_widget = creator_description_widget
 
         self.subset_name_input = subset_name_input
@@ -287,7 +300,7 @@ class CreateDialog(QtWidgets.QDialog):
     def refresh(self):
         self._prereq_available = True
 
-        self._context_widget.refresh()
+        self._assets_widget.refresh()
         # Refresh data before update of creators
         self._refresh_asset()
         # Then refresh creators which may trigger callbacks using refreshed
@@ -298,9 +311,11 @@ class CreateDialog(QtWidgets.QDialog):
             # QUESTION how to handle invalid asset?
             self.subset_name_input.setText("< Asset is not set >")
             self._prereq_available = False
-        else:
-            self._context_widget.select_asset_by_name(self._asset_doc["name"])
+
         self._assets_widget.set_current_asset_name(self._asset_name)
+        self._assets_widget.select_asset_by_name(self._asset_name)
+        self._tasks_widget.set_asset_name(self._asset_name)
+        self._tasks_widget.select_task_name(self._task_name)
 
         if self.creators_model.rowCount() < 1:
             self._prereq_available = False
@@ -386,6 +401,10 @@ class CreateDialog(QtWidgets.QDialog):
         # Trigger refresh only if is visible
         if self.isVisible():
             self.refresh()
+
+    def _on_asset_change(self):
+        asset_name = self._assets_widget.get_selected_asset_name()
+        self._tasks_widget.set_asset_name(asset_name)
 
     def _on_item_change(self, new_index, _old_index):
         identifier = None
