@@ -24,18 +24,35 @@ EXT_ROLE = QtCore.Qt.UserRole + 7
 
 
 class DropEmpty(QtWidgets.QWidget):
+    _drop_enabled_text = "Drag & Drop\n(drop files here)"
+    _drop_disabled_text = "This creator does not support extra files"
+
     def __init__(self, parent):
         super(DropEmpty, self).__init__(parent)
-        label_widget = QtWidgets.QLabel("Drag & Drop\n(drop files here)", self)
+        label_widget = QtWidgets.QLabel(self._drop_enabled_text, self)
 
         label_widget.setAttribute(QtCore.Qt.WA_TranslucentBackground)
 
-        layout = QtWidgets.QVBoxLayout(self)
+        layout = QtWidgets.QHBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
+        layout.addSpacing(10)
         layout.addWidget(
             label_widget,
             alignment=QtCore.Qt.AlignCenter
         )
+        layout.addSpacing(10)
+
+        self._label_widget = label_widget
+        self._drop_enabled = True
+
+    def set_drop_enabled(self, enabled):
+        if enabled == self._drop_enabled:
+            return
+        self._drop_enabled = enabled
+        if enabled:
+            self._label_widget.setText(self._drop_enabled_text)
+        else:
+            self._label_widget.setText(self._drop_disabled_text)
 
     def paintEvent(self, event):
         super(DropEmpty, self).paintEvent(event)
@@ -393,7 +410,7 @@ class FilesWidget(QtWidgets.QFrame):
         self._files_proxy_model.set_allow_folders(folders_allowed)
         self._files_proxy_model.set_allowed_extensions(exts_filter)
         enabled = folders_allowed or exts_filter is not None
-        self._empty_widget.set_enabled(enabled)
+        self._empty_widget.set_drop_enabled(enabled)
         self.setEnabled(enabled)
 
     def _on_rows_inserted(self, parent_index, start_row, end_row):
