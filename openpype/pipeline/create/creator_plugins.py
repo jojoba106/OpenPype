@@ -199,6 +199,15 @@ class Creator(BaseCreator):
     # - may not be used if `get_detail_description` is overriden
     detailed_description = None
 
+    # It does make sense to change context on creation
+    # - in some cases it may confuse artists because it would not be used
+    #      e.g. for buld creators
+    create_allow_context_change = True
+    # Drag and drop abilities
+    # TODO should be probably more generic
+    allow_folders = False
+    allowed_filename_exts = None
+
     @abstractmethod
     def create(self, subset_name, instance_data, options=None):
         """Create new instance and store it.
