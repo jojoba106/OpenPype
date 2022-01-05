@@ -7,7 +7,11 @@ from openpype.tools.utils import (
     PlaceholderLineEdit,
     RecursiveSortFilterProxyModel
 )
-from openpype.tools.utils.assets_widget import SingleSelectAssetsWidget
+from openpype.tools.utils.assets_widget import (
+    SingleSelectAssetsWidget,
+    ASSET_ID_ROLE,
+    ASSET_NAME_ROLE
+)
 
 
 class CreateDialogAssetsWidget(SingleSelectAssetsWidget):
@@ -73,6 +77,9 @@ class AssetsHierarchyModel(QtGui.QStandardItemModel):
             for name in sorted(children_by_name.keys()):
                 child = children_by_name[name]
                 item = QtGui.QStandardItem(name)
+                item.setData(child["_id"], ASSET_ID_ROLE)
+                item.setData(name, ASSET_NAME_ROLE)
+
                 items_by_name[name] = item
                 items.append(item)
                 _queue.append((item, child["_id"]))
