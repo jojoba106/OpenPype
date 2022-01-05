@@ -1,6 +1,6 @@
-import re
-
 from Qt import QtCore, QtGui
+
+from openpype.tools.utils.tasks_widget import TasksWidget
 
 
 class TasksModel(QtGui.QStandardItemModel):
@@ -19,6 +19,7 @@ class TasksModel(QtGui.QStandardItemModel):
     """
     def __init__(self, controller):
         super(TasksModel, self).__init__()
+
         self._controller = controller
         self._items_by_name = {}
         self._asset_names = []
@@ -85,6 +86,7 @@ class TasksModel(QtGui.QStandardItemModel):
         task_names_by_asset_name = (
             self._controller.get_task_names_by_asset_names(self._asset_names)
         )
+
         self._task_names_by_asset_name = task_names_by_asset_name
 
         new_task_names = self.get_intersection_of_tasks(
@@ -109,3 +111,28 @@ class TasksModel(QtGui.QStandardItemModel):
             self._items_by_name[task_name] = item
             new_items.append(item)
         root_item.appendRows(new_items)
+
+    def headerData(self, section, orientation, role=None):
+        if role is None:
+            role = QtCore.Qt.EditRole
+        # Show nice labels in the header
+        if section == 0:
+            if (
+                role in (QtCore.Qt.DisplayRole, QtCore.Qt.EditRole)
+                and orientation == QtCore.Qt.Horizontal
+            ):
+                return "Tasks"
+
+        return super(TasksModel, self).headerData(section, orientation, role)
+
+
+class CreateDialogTasksWidget(TasksWidget):
+    def __init__(self, controller, parent):
+        self._controller = controller
+        super(CreateDialogTasksWidget, self).__init__(None, parent)
+
+    def _create_source_model(self):
+        return TasksModel(self._controller)
+
+    def set_asset_name(self, asset_name):
+        self._tasks_model.set_asset_names([asset_name])

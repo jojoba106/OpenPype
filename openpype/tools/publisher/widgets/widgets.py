@@ -12,7 +12,7 @@ from openpype.tools.flickcharm import FlickCharm
 from openpype.tools.utils import PlaceholderLineEdit
 from openpype.pipeline.create import SUBSET_NAME_ALLOWED_SYMBOLS
 from .assets_widget import AssetsDialog
-from .models import TasksModel
+from .tasks_widget import TasksModel
 from .icons import (
     get_pixmap,
     get_icon_path
