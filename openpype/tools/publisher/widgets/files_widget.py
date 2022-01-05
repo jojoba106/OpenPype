@@ -141,6 +141,21 @@ class FilesModel(QtGui.QStandardItemModel):
             cols, remainders = clique.assemble(
                 self._filenames_by_dirpath[dirpath]
             )
+            filtered_cols = []
+            for collection in cols:
+                filenames = set(collection)
+                valid_col = True
+                for filename in filenames:
+                    ext = os.path.splitext(filename)[-1]
+                    valid_col = ext in self.sequence_exts
+                    break
+
+                if valid_col:
+                    filtered_cols.append(collection)
+                else:
+                    for filename in filenames:
+                        remainders.append(filename)
+
             for filename in remainders:
                 found = False
                 for item in items_to_remove:
@@ -166,7 +181,7 @@ class FilesModel(QtGui.QStandardItemModel):
                 new_items.append(item)
                 self._items_by_dirpath[dirpath].append(item)
 
-            for collection in cols:
+            for collection in filtered_cols:
                 filenames = set(collection)
                 found = False
                 for item in items_to_remove:
