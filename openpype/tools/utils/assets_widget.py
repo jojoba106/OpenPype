@@ -669,8 +669,11 @@ class AssetsWidget(QtWidgets.QWidget):
     def stop_refresh(self):
         self._model.stop_refresh()
 
+    def _get_current_session_asset(self):
+        return self.dbcon.Session.get("AVALON_ASSET")
+
     def set_current_session_asset(self):
-        asset_name = self.dbcon.Session.get("AVALON_ASSET")
+        asset_name = self._get_current_session_asset()
         if asset_name:
             self.select_asset_by_name(asset_name)
 
