@@ -1,10 +1,38 @@
 import collections
 
+import avalon.api
+
 from Qt import QtWidgets, QtCore, QtGui
 from openpype.tools.utils import (
     PlaceholderLineEdit,
     RecursiveSortFilterProxyModel
 )
+from openpype.tools.utils.assets_widget import SingleSelectAssetsWidget
+
+
+class CreateDialogAssetsWidget(SingleSelectAssetsWidget):
+    def __init__(self, controller, parent):
+        self._controller = controller
+        super(CreateDialogAssetsWidget, self).__init__(None, parent)
+
+        self.set_refresh_btn_visibility(False)
+        self.set_current_asset_btn_visibility(True)
+
+    def _get_current_session_asset(self):
+        # TODO Current should be retrieved from controller
+        return avalon.api.Session.get("AVALON_ASSET")
+
+    def _create_source_model(self):
+        return AssetsHierarchyModel(self._controller)
+
+    def _refresh_model(self):
+        self._model.reset()
+        self._on_model_refresh(self._model.rowCount() > 0)
+
+        # Hide set current asset if there is no one
+        self.set_current_asset_btn_visibility(
+            self._get_current_session_asset() is not None
+        )
 
 
 class AssetsHierarchyModel(QtGui.QStandardItemModel):
@@ -51,6 +79,12 @@ class AssetsHierarchyModel(QtGui.QStandardItemModel):
             parent_item.appendRows(items)
 
         self._items_by_name = items_by_name
+
+    def get_index_by_asset_name(self, asset_name):
+        item = self._items_by_name.get(asset_name)
+        if item is None:
+            return QtCore.QModelIndex()
+        return item.index()
 
     def name_is_valid(self, item_name):
         return item_name in self._items_by_name

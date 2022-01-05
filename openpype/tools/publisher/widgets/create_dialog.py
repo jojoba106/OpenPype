@@ -15,6 +15,7 @@ from openpype.pipeline.create import (
 )
 
 from .widgets import IconValuePixmapLabel
+from .assets_widget import CreateDialogAssetsWidget
 from .files_widget import FilesWidget
 from ..constants import (
     VARIANT_TOOLTIP,
@@ -203,6 +204,7 @@ class CreateDialog(QtWidgets.QDialog):
         self._name_pattern = name_pattern
         self._compiled_name_pattern = re.compile(name_pattern)
 
+        context_widget = CreateDialogAssetsWidget(controller, self)
         files_widget = FilesWidget(self)
 
         creator_description_widget = CreatorDescriptionWidget(self)
@@ -239,16 +241,18 @@ class CreateDialog(QtWidgets.QDialog):
         form_layout.addRow("Name:", variant_layout)
         form_layout.addRow("Subset:", subset_name_input)
 
-        left_layout = QtWidgets.QVBoxLayout()
-        left_layout.addWidget(QtWidgets.QLabel("Choose family:", self))
-        left_layout.addWidget(creators_view, 1)
-        left_layout.addLayout(form_layout, 0)
-        left_layout.addWidget(create_btn, 0)
+        mid_widget = QtWidgets.QWidget(self)
+        mid_layout = QtWidgets.QVBoxLayout(mid_widget)
+        mid_layout.setContentsMargins(0, 0, 0, 0)
+        mid_layout.addWidget(QtWidgets.QLabel("Choose family:", self))
+        mid_layout.addWidget(creators_view, 1)
+        mid_layout.addLayout(form_layout, 0)
+        mid_layout.addWidget(create_btn, 0)
 
         layout = QtWidgets.QHBoxLayout(self)
-        layout.addLayout(left_layout, 0)
-        layout.addSpacing(5)
-        layout.addWidget(creator_description_widget, 1)
+        layout.setSpacing(10)
+        layout.addWidget(context_widget, 1)
+        layout.addWidget(mid_widget, 1)
         layout.addWidget(files_widget, 1)
 
         create_btn.clicked.connect(self._on_create)
@@ -262,6 +266,7 @@ class CreateDialog(QtWidgets.QDialog):
         controller.add_plugins_refresh_callback(self._on_plugins_refresh)
 
         self._files_widget = files_widget
+        self._context_widget = context_widget
         self.creator_description_widget = creator_description_widget
 
         self.subset_name_input = subset_name_input
@@ -282,6 +287,7 @@ class CreateDialog(QtWidgets.QDialog):
     def refresh(self):
         self._prereq_available = True
 
+        self._context_widget.refresh()
         # Refresh data before update of creators
         self._refresh_asset()
         # Then refresh creators which may trigger callbacks using refreshed
@@ -292,6 +298,8 @@ class CreateDialog(QtWidgets.QDialog):
             # QUESTION how to handle invalid asset?
             self.subset_name_input.setText("< Asset is not set >")
             self._prereq_available = False
+        else:
+            self._context_widget.select_asset_by_name(self._asset_doc["name"])
 
         if self.creators_model.rowCount() < 1:
             self._prereq_available = False
