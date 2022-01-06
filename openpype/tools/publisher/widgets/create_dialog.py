@@ -453,7 +453,9 @@ class CreateDialog(QtWidgets.QDialog):
         identifier = None
         if new_index.isValid():
             identifier = new_index.data(CREATOR_IDENTIFIER_ROLE)
+        self._set_creator(identifier)
 
+    def _set_creator(self, identifier):
         creator = self.controller.manual_creators.get(identifier)
 
         self.creator_description_widget.set_plugin(creator)
