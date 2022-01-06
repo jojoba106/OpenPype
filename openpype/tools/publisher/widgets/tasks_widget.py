@@ -1,6 +1,6 @@
 from Qt import QtCore, QtGui
 
-from openpype.tools.utils.tasks_widget import TasksWidget
+from openpype.tools.utils.tasks_widget import TasksWidget, TASK_NAME_ROLE
 
 
 class TasksModel(QtGui.QStandardItemModel):
@@ -108,6 +108,7 @@ class TasksModel(QtGui.QStandardItemModel):
                 continue
 
             item = QtGui.QStandardItem(task_name)
+            item.setData(task_name, TASK_NAME_ROLE)
             self._items_by_name[task_name] = item
             new_items.append(item)
         root_item.appendRows(new_items)
