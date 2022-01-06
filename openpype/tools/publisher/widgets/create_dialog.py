@@ -366,7 +366,7 @@ class CreateDialog(QtWidgets.QDialog):
         self._on_variant_change()
 
     def _refresh_asset(self):
-        asset_name = self._asset_name
+        asset_name = self._get_asset_name()
 
         # Skip if asset did not change
         if self._asset_doc and self._asset_doc["name"] == asset_name:
@@ -393,6 +393,9 @@ class CreateDialog(QtWidgets.QDialog):
                 {"name": 1}
             )
             self._subset_names = set(subset_docs.distinct("name"))
+
+        if not asset_doc:
+            self.subset_name_input.setText("< Asset is not set >")
 
     def _refresh_creators(self):
         # Refresh creators and add their families to list
