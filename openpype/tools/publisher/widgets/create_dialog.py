@@ -439,6 +439,12 @@ class CreateDialog(QtWidgets.QDialog):
         if not indexes:
             index = self.creators_model.index(0, 0)
             self.creators_view.setCurrentIndex(index)
+        else:
+            index = indexes[0]
+
+        identifier = index.data(CREATOR_IDENTIFIER_ROLE)
+
+        self._set_creator(identifier)
 
     def _on_plugins_refresh(self):
         # Trigger refresh only if is visible
