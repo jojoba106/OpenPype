@@ -53,14 +53,17 @@ class AssetsHierarchyModel(QtGui.QStandardItemModel):
         self._controller = controller
 
         self._items_by_name = {}
+        self._items_by_asset_id = {}
 
     def reset(self):
         self.clear()
 
         self._items_by_name = {}
+        self._items_by_asset_id = {}
         assets_by_parent_id = self._controller.get_asset_hierarchy()
 
         items_by_name = {}
+        items_by_asset_id = {}
         _queue = collections.deque()
         _queue.append((self.invisibleRootItem(), None))
         while _queue:
@@ -86,12 +89,20 @@ class AssetsHierarchyModel(QtGui.QStandardItemModel):
                 item.setData(name, ASSET_NAME_ROLE)
 
                 items_by_name[name] = item
+                items_by_asset_id[child_id] = item
                 items.append(item)
                 _queue.append((item, child_id))
 
             parent_item.appendRows(items)
 
         self._items_by_name = items_by_name
+        self._items_by_asset_id = items_by_asset_id
+
+    def get_index_by_asset_id(self, asset_id):
+        item = self._items_by_asset_id.get(asset_id)
+        if item is not None:
+            return item.index()
+        return QtCore.QModelIndex()
 
     def get_index_by_asset_name(self, asset_name):
         item = self._items_by_name.get(asset_name)
@@ -101,12 +112,6 @@ class AssetsHierarchyModel(QtGui.QStandardItemModel):
 
     def name_is_valid(self, item_name):
         return item_name in self._items_by_name
-
-    def get_index_by_name(self, item_name):
-        item = self._items_by_name.get(item_name)
-        if item:
-            return item.index()
-        return QtCore.QModelIndex()
 
 
 class AssetsDialog(QtWidgets.QDialog):
@@ -217,7 +222,7 @@ class AssetsDialog(QtWidgets.QDialog):
 
         indexes = []
         for asset_name in asset_names:
-            index = self._model.get_index_by_name(asset_name)
+            index = self._model.get_index_by_asset_name(asset_name)
             if index.isValid():
                 indexes.append(index)
 
