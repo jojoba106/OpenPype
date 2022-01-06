@@ -457,6 +457,8 @@ class CreateDialog(QtWidgets.QDialog):
 
         asset_name = self._assets_widget.get_selected_asset_name()
         self._tasks_widget.set_asset_name(asset_name)
+        if self._context_change_is_enabled():
+            self._invalidate_prereq()
 
     def _on_task_change(self):
         if self._context_change_is_enabled():
