@@ -269,7 +269,7 @@ class CreateDialog(QtWidgets.QDialog):
         variant_input.returnPressed.connect(self._on_create)
         variant_input.textChanged.connect(self._on_variant_change)
         creators_view.selectionModel().currentChanged.connect(
-            self._on_item_change
+            self._on_creator_item_change
         )
         variant_hints_menu.triggered.connect(self._on_variant_action)
         assets_widget.selection_changed.connect(self._on_asset_change)
@@ -449,7 +449,7 @@ class CreateDialog(QtWidgets.QDialog):
         asset_name = self._assets_widget.get_selected_asset_name()
         self._tasks_widget.set_asset_name(asset_name)
 
-    def _on_item_change(self, new_index, _old_index):
+    def _on_creator_item_change(self, new_index, _old_index):
         identifier = None
         if new_index.isValid():
             identifier = new_index.data(CREATOR_IDENTIFIER_ROLE)
