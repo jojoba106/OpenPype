@@ -273,6 +273,7 @@ class CreateDialog(QtWidgets.QDialog):
         )
         variant_hints_menu.triggered.connect(self._on_variant_action)
         assets_widget.selection_changed.connect(self._on_asset_change)
+        tasks_widget.task_changed.connect(self._on_task_change)
 
         controller.add_plugins_refresh_callback(self._on_plugins_refresh)
 
@@ -456,6 +457,10 @@ class CreateDialog(QtWidgets.QDialog):
 
         asset_name = self._assets_widget.get_selected_asset_name()
         self._tasks_widget.set_asset_name(asset_name)
+
+    def _on_task_change(self):
+        if self._context_change_is_enabled():
+            self._invalidate_prereq()
 
     def _on_creator_item_change(self, new_index, _old_index):
         identifier = None
