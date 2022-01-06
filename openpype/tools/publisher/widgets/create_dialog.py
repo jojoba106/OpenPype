@@ -298,7 +298,7 @@ class CreateDialog(QtWidgets.QDialog):
         return self.controller.dbcon
 
     def refresh(self):
-        self._prereq_available = True
+        self._prereq_available = False
 
         self._assets_widget.refresh()
         # Refresh data before update of creators
