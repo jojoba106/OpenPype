@@ -474,7 +474,14 @@ class CreateDialog(QtWidgets.QDialog):
             self._context_widget.setEnabled(False)
             return
 
-        self._context_widget.setEnabled(creator.create_allow_context_change)
+        if (
+            creator.create_allow_context_change
+            != self._context_widget.isEnabled()
+        ):
+            self._context_widget.setEnabled(
+                creator.create_allow_context_change
+            )
+            self._refresh_asset()
 
         self._files_widget.set_filters(
             creator.allow_folders,
