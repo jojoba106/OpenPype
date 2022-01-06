@@ -313,7 +313,7 @@ class CreateDialog(QtWidgets.QDialog):
             if asset_name:
                 task_name = self._tasks_widget.get_selected_task_name()
 
-        if task_name is None:
+        if not task_name:
             task_name = self._task_name
         return task_name
 
@@ -322,6 +322,11 @@ class CreateDialog(QtWidgets.QDialog):
         return self.controller.dbcon
 
     def refresh(self):
+        # Get context before refresh to keep selection of asset and
+        #   task widgets
+        asset_name = self._get_asset_name()
+        task_name = self._get_task_name()
+
         self._prereq_available = False
 
         # Disable context widget so refresh of asset will use context asset
@@ -335,15 +340,11 @@ class CreateDialog(QtWidgets.QDialog):
         #   data
         self._refresh_creators()
 
-        if self._asset_doc is None:
-            # QUESTION how to handle invalid asset?
-            self.subset_name_input.setText("< Asset is not set >")
-            self._prereq_available = False
-
         self._assets_widget.set_current_asset_name(self._asset_name)
-        self._assets_widget.select_asset_by_name(self._asset_name)
-        self._tasks_widget.set_asset_name(self._asset_name)
-        self._tasks_widget.select_task_name(self._task_name)
+        self._assets_widget.select_asset_by_name(asset_name)
+        self._tasks_widget.set_asset_name(asset_name)
+        self._tasks_widget.select_task_name(task_name)
+
         self._invalidate_prereq()
 
     def _invalidate_prereq(self):
