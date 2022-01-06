@@ -265,6 +265,11 @@ class CreateDialog(QtWidgets.QDialog):
         layout.addWidget(mid_widget, 1)
         layout.addWidget(files_widget, 1)
 
+        prereq_timer = QtCore.QTimer()
+        prereq_timer.setInterval(50)
+        prereq_timer.setSingleShot(True)
+
+        prereq_timer.timeout.connect(self._on_prereq_timer)
         create_btn.clicked.connect(self._on_create)
         variant_input.returnPressed.connect(self._on_create)
         variant_input.textChanged.connect(self._on_variant_change)
@@ -293,6 +298,8 @@ class CreateDialog(QtWidgets.QDialog):
         self.creators_model = creators_model
         self.creators_view = creators_view
         self.create_btn = create_btn
+
+        self._prereq_timer = prereq_timer
 
     def _context_change_is_enabled(self):
         return self._context_widget.isEnabled()
@@ -349,6 +356,9 @@ class CreateDialog(QtWidgets.QDialog):
         self._invalidate_prereq()
 
     def _invalidate_prereq(self):
+        self._prereq_timer.start()
+
+    def _on_prereq_timer(self):
         prereq_available = True
         if self.creators_model.rowCount() < 1:
             prereq_available = False
