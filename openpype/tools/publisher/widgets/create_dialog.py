@@ -452,6 +452,8 @@ class CreateDialog(QtWidgets.QDialog):
             self.refresh()
 
     def _on_asset_change(self):
+        self._refresh_asset()
+
         asset_name = self._assets_widget.get_selected_asset_name()
         self._tasks_widget.set_asset_name(asset_name)
 
