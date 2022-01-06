@@ -324,6 +324,10 @@ class CreateDialog(QtWidgets.QDialog):
     def refresh(self):
         self._prereq_available = False
 
+        # Disable context widget so refresh of asset will use context asset
+        #   name
+        self._context_widget.setEnabled(False)
+
         self._assets_widget.refresh()
         # Refresh data before update of creators
         self._refresh_asset()
@@ -340,14 +344,25 @@ class CreateDialog(QtWidgets.QDialog):
         self._assets_widget.select_asset_by_name(self._asset_name)
         self._tasks_widget.set_asset_name(self._asset_name)
         self._tasks_widget.select_task_name(self._task_name)
+        self._invalidate_prereq()
 
+    def _invalidate_prereq(self):
+        prereq_available = True
         if self.creators_model.rowCount() < 1:
-            self._prereq_available = False
+            prereq_available = False
 
-        self.create_btn.setEnabled(self._prereq_available)
-        self.creators_view.setEnabled(self._prereq_available)
-        self.variant_input.setEnabled(self._prereq_available)
-        self.variant_hints_btn.setEnabled(self._prereq_available)
+        if self._asset_doc is None:
+            # QUESTION how to handle invalid asset?
+            prereq_available = False
+
+        if prereq_available != self._prereq_available:
+            self._prereq_available = prereq_available
+
+            self.create_btn.setEnabled(prereq_available)
+            self.creators_view.setEnabled(prereq_available)
+            self.variant_input.setEnabled(prereq_available)
+            self.variant_hints_btn.setEnabled(prereq_available)
+        self._on_variant_change()
 
     def _refresh_asset(self):
         asset_name = self._asset_name
