@@ -512,11 +512,18 @@ class CreateDialog(QtWidgets.QDialog):
         if self.variant_input.text() != value:
             self.variant_input.setText(value)
 
-    def _on_variant_change(self, variant_value):
-        if not self._prereq_available or not self._selected_creator:
+    def _on_variant_change(self, variant_value=None):
+        if not self._prereq_available:
+            return
+
+        # This should probably never happen?
+        if not self._selected_creator:
             if self.subset_name_input.text():
                 self.subset_name_input.setText("")
             return
+
+        if variant_value is None:
+            variant_value = self.variant_input.text()
 
         match = self._compiled_name_pattern.match(variant_value)
         valid = bool(match)
