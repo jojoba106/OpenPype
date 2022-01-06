@@ -293,6 +293,30 @@ class CreateDialog(QtWidgets.QDialog):
         self.creators_view = creators_view
         self.create_btn = create_btn
 
+    def _context_change_is_enabled(self):
+        return self._context_widget.isEnabled()
+
+    def _get_asset_name(self):
+        asset_name = None
+        if self._context_change_is_enabled():
+            asset_name = self._assets_widget.get_selected_asset_name()
+
+        if asset_name is None:
+            asset_name = self._asset_name
+        return asset_name
+
+    def _get_task_name(self):
+        task_name = None
+        if self._context_change_is_enabled():
+            # Don't use selection of task if asset is not set
+            asset_name = self._assets_widget.get_selected_asset_name()
+            if asset_name:
+                task_name = self._tasks_widget.get_selected_task_name()
+
+        if task_name is None:
+            task_name = self._task_name
+        return task_name
+
     @property
     def dbcon(self):
         return self.controller.dbcon
