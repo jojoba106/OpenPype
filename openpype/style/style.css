@@ -387,10 +387,16 @@ QHeaderView::section:only-one {
 
 QHeaderView::down-arrow {
     image: url(:/openpype/images/down_arrow.png);
+    padding-right: 4px;
+    subcontrol-origin: padding;
+    subcontrol-position: center right;
 }
 
 QHeaderView::up-arrow {
     image: url(:/openpype/images/up_arrow.png);
+    padding-right: 4px;
+    subcontrol-origin: padding;
+    subcontrol-position: center right;
 }
 
 /* Checkboxes */
