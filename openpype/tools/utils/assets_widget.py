@@ -635,7 +635,7 @@ class AssetsWidget(QtWidgets.QWidget):
         selection_model = view.selectionModel()
         selection_model.selectionChanged.connect(self._on_selection_change)
         refresh_btn.clicked.connect(self.refresh)
-        current_asset_btn.clicked.connect(self.set_current_session_asset)
+        current_asset_btn.clicked.connect(self._on_current_asset_click)
         view.doubleClicked.connect(self.double_clicked)
 
         self._refresh_btn = refresh_btn
@@ -671,6 +671,14 @@ class AssetsWidget(QtWidgets.QWidget):
 
     def _get_current_session_asset(self):
         return self.dbcon.Session.get("AVALON_ASSET")
+
+    def _on_current_asset_click(self):
+        """Trigger change of asset to current context asset.
+
+        This separation gives ability to override this method and use it
+        in differnt way.
+        """
+        self.set_current_session_asset()
 
     def set_current_session_asset(self):
         asset_name = self._get_current_session_asset()
@@ -740,6 +748,10 @@ class AssetsWidget(QtWidgets.QWidget):
 
     def _set_loading_state(self, loading, empty):
         self._view.set_loading_state(loading, empty)
+
+    def _clear_selection(self):
+        selection_model = self._view.selectionModel()
+        selection_model.clearSelection()
 
     def _select_indexes(self, indexes):
         valid_indexes = [
