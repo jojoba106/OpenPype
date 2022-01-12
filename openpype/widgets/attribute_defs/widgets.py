@@ -83,6 +83,9 @@ class NumberAttrWidget(_BaseAttrDefWidget):
         else:
             input_widget = QtWidgets.QSpinBox(self)
 
+        if self.attr_def.tooltip:
+            input_widget.setToolTip(self.attr_def.tooltip)
+
         input_widget.setMinimum(self.attr_def.minimum)
         input_widget.setMaximum(self.attr_def.maximum)
         input_widget.setValue(self.attr_def.default)
@@ -136,6 +139,9 @@ class TextAttrWidget(_BaseAttrDefWidget):
         ):
             input_widget.setPlaceholderText(self.attr_def.placeholder)
 
+        if self.attr_def.tooltip:
+            input_widget.setToolTip(self.attr_def.tooltip)
+
         if self.attr_def.default:
             if self.multiline:
                 input_widget.setPlainText(self.attr_def.default)
@@ -184,6 +190,9 @@ class BoolAttrWidget(_BaseAttrDefWidget):
         input_widget = NiceCheckbox(parent=self)
         input_widget.setChecked(self.attr_def.default)
 
+        if self.attr_def.tooltip:
+            input_widget.setToolTip(self.attr_def.tooltip)
+
         input_widget.stateChanged.connect(self._on_value_change)
 
         self._input_widget = input_widget
@@ -219,6 +228,9 @@ class EnumAttrWidget(_BaseAttrDefWidget):
         input_widget = QtWidgets.QComboBox(self)
         combo_delegate = QtWidgets.QStyledItemDelegate(input_widget)
         input_widget.setItemDelegate(combo_delegate)
+
+        if self.attr_def.tooltip:
+            input_widget.setToolTip(self.attr_def.tooltip)
 
         items = self.attr_def.items
         for key, label in items.items():
