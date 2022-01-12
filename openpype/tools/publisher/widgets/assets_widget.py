@@ -15,6 +15,8 @@ from openpype.tools.utils.assets_widget import (
 
 
 class CreateDialogAssetsWidget(SingleSelectAssetsWidget):
+    current_context_required = QtCore.Signal()
+
     def __init__(self, controller, parent):
         self._controller = controller
         super(CreateDialogAssetsWidget, self).__init__(None, parent)
@@ -23,6 +25,9 @@ class CreateDialogAssetsWidget(SingleSelectAssetsWidget):
         self.set_current_asset_btn_visibility(False)
 
         self._current_asset_name = None
+
+    def _on_current_asset_click(self):
+        self.current_context_required.emit()
 
     def set_current_asset_name(self, asset_name):
         self._current_asset_name = asset_name
