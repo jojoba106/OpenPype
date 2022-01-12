@@ -25,9 +25,28 @@ class CreateDialogAssetsWidget(SingleSelectAssetsWidget):
         self.set_current_asset_btn_visibility(False)
 
         self._current_asset_name = None
+        self._last_selection = None
+        self._enabled = None
 
     def _on_current_asset_click(self):
         self.current_context_required.emit()
+
+    def set_enabled(self, enabled):
+        if self._enabled == enabled:
+            return
+        self._enabled = enabled
+        if not enabled:
+            self._last_selection = self.get_selected_asset_id()
+            self._clear_selection()
+        elif self._last_selection is not None:
+            self.select_asset(self._last_selection)
+
+    def _select_indexes(self, *args, **kwargs):
+        super(CreateDialogAssetsWidget, self)._select_indexes(*args, **kwargs)
+        if self._enabled:
+            return
+        self._last_selection = self.get_selected_asset_id()
+        self._clear_selection()
 
     def set_current_asset_name(self, asset_name):
         self._current_asset_name = asset_name

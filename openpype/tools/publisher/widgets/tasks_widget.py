@@ -132,8 +132,38 @@ class CreateDialogTasksWidget(TasksWidget):
         self._controller = controller
         super(CreateDialogTasksWidget, self).__init__(None, parent)
 
+        self._enabled = None
+
     def _create_source_model(self):
         return TasksModel(self._controller)
 
     def set_asset_name(self, asset_name):
+        current = self.get_selected_task_name()
+        if current:
+            self._last_selected_task_name = current
+
         self._tasks_model.set_asset_names([asset_name])
+        if self._last_selected_task_name and self._enabled:
+            self.select_task_name(self._last_selected_task_name)
+
+        # Force a task changed emit.
+        self.task_changed.emit()
+
+    def select_task_name(self, task_name):
+        super(CreateDialogTasksWidget, self).select_task_name(task_name)
+        if not self._enabled:
+            current = self.get_selected_task_name()
+            if current:
+                self._last_selected_task_name = current
+            self._clear_selection()
+
+    def set_enabled(self, enabled):
+        self._enabled = enabled
+        if not enabled:
+            last_selected_task_name = self.get_selected_task_name()
+            if last_selected_task_name:
+                self._last_selected_task_name = last_selected_task_name
+            self._clear_selection()
+
+        elif self._last_selected_task_name is not None:
+            self.select_task_name(self._last_selected_task_name)

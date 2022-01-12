@@ -212,6 +212,7 @@ class CreateDialog(QtWidgets.QDialog):
 
         context_layout = QtWidgets.QVBoxLayout(context_widget)
         context_layout.setContentsMargins(0, 0, 0, 0)
+        context_layout.setSpacing(0)
         context_layout.addWidget(assets_widget, 2)
         context_layout.addWidget(tasks_widget, 1)
 
@@ -332,6 +333,11 @@ class CreateDialog(QtWidgets.QDialog):
     def dbcon(self):
         return self.controller.dbcon
 
+    def _set_context_enabled(self, enabled):
+        self._assets_widget.set_enabled(enabled)
+        self._tasks_widget.set_enabled(enabled)
+        self._context_widget.setEnabled(enabled)
+
     def refresh(self):
         # Get context before refresh to keep selection of asset and
         #   task widgets
@@ -342,7 +348,7 @@ class CreateDialog(QtWidgets.QDialog):
 
         # Disable context widget so refresh of asset will use context asset
         #   name
-        self._context_widget.setEnabled(False)
+        self._set_context_enabled(False)
 
         self._assets_widget.refresh()
         # Refresh data before update of creators
@@ -496,16 +502,14 @@ class CreateDialog(QtWidgets.QDialog):
         self._selected_creator = creator
         if not creator:
             self._files_widget.set_file_filters(False, None)
-            self._context_widget.setEnabled(False)
+            self._set_context_enabled(False)
             return
 
         if (
             creator.create_allow_context_change
-            != self._context_widget.isEnabled()
+            != self._context_change_is_enabled()
         ):
-            self._context_widget.setEnabled(
-                creator.create_allow_context_change
-            )
+            self._set_context_enabled(creator.create_allow_context_change)
             self._refresh_asset()
 
         self._files_widget.set_filters(
