@@ -261,3 +261,77 @@ class BoolDef(AbtractAttrDef):
         if isinstance(value, bool):
             return value
         return self.default
+
+
+class FileDef(AbtractAttrDef):
+    """File definition.
+
+    Args:
+        multipath(bool): Allow multiple path.
+        folders(bool): Allow folder paths.
+        extensions(list<str>): Allow files with extensions.
+        default(str, list<str>): Defautl value.
+    """
+
+    def __init__(
+        self, key, multipath=False, folders=None, extensions=None,
+        default=None, **kwargs
+    ):
+        if folders is None and extensions is None:
+            folders = True
+            extensions = []
+
+        if default is None:
+            if multipath:
+                default = []
+            else:
+                default = ""
+        else:
+            if multipath:
+                if not isinstance(default, (tuple, list, set)):
+                    raise TypeError((
+                        "'default' argument must be 'list', 'tuple' or 'set'"
+                        ", not '{}'"
+                    ).format(type(default)))
+
+            else:
+                if not isinstance(default, six.string_types):
+                    raise TypeError((
+                        "'default' argument must be 'str' not '{}'"
+                    ).format(type(default)))
+
+        self.multipath = multipath
+        self.folders = folders
+        self.extensions = extensions
+        super(FileDef, self).__init__(key, default=default, **kwargs)
+
+    def __eq__(self, other):
+        if not super(FileDef, self).__eq__(other):
+            return False
+
+        return (
+            self.multipath == other.multipath
+            and self.folders == other.folders
+            and self.extensions == other.extensions
+        )
+
+    def convert_value(self, value):
+        if isinstance(value, six.string_types):
+            if self.multipath:
+                value = [value]
+            return value
+
+        if isinstance(value, (tuple, list, set)):
+            _value = []
+            for item in value:
+                if isinstance(item, six.string_types):
+                    _value.append(item)
+
+            if self.multipath:
+                return _value
+
+            if not _value:
+                return self.default
+            return _value[0]
+
+        return str(value)
