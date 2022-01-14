@@ -48,7 +48,9 @@ class TestCreatorOne(Creator):
 
     def get_attribute_defs(self):
         output = [
-            lib.NumberDef("number_key", label="Number")
+            lib.NumberDef("number_key", label="Number"),
+            lib.FileDef("filepath", folders=True, label="Filepath"),
+            lib.FileDef("filepath_2", multipath=True, folders=True, label="Filepath 2")
         ]
         return output
 

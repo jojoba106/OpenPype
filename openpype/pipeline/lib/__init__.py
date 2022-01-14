@@ -4,7 +4,8 @@ from .attribute_definitions import (
     NumberDef,
     TextDef,
     EnumDef,
-    BoolDef
+    BoolDef,
+    FileDef
 )
 
 
@@ -14,5 +15,6 @@ __all__ = (
     "NumberDef",
     "TextDef",
     "EnumDef",
-    "BoolDef"
+    "BoolDef",
+    "FileDef",
 )
