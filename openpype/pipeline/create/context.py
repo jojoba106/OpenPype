@@ -94,6 +94,7 @@ class AttributeValues:
         attr_defs_by_key = {
             attr_def.key: attr_def
             for attr_def in attr_defs
+            if attr_def.is_value_def
         }
         for key, value in values.items():
             if key not in attr_defs_by_key:
