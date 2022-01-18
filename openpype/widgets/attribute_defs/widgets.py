@@ -53,6 +53,7 @@ def create_widget_for_attr_def(attr_def, parent=None):
 
 
 class _BaseAttrDefWidget(QtWidgets.QWidget):
+    # Type 'object' may not work with older PySide versions
     value_changed = QtCore.Signal(object, uuid.UUID)
     label_horizontal = True
 
@@ -88,6 +89,30 @@ class _BaseAttrDefWidget(QtWidgets.QWidget):
                 self.__class__.__name__
             )
         )
+
+
+class SeparatorAttrWidget(_BaseAttrDefWidget):
+    def _ui_init(self):
+        input_widget = QtWidgets.QWidget(self)
+        input_widget.setObjectName("Separator")
+        input_widget.setMinimumHeight(2)
+        input_widget.setMaximumHeight(2)
+
+        self._input_widget = input_widget
+
+        self.main_layout.addWidget(input_widget, 0)
+
+
+class LabelAttrWidget(_BaseAttrDefWidget):
+    def _ui_init(self):
+        input_widget = QtWidgets.QLabel(self)
+        label = self.attr_def.label
+        if label:
+            input_widget.setText(str(label))
+
+        self._input_widget = input_widget
+
+        self.main_layout.addWidget(input_widget, 0)
 
 
 class NumberAttrWidget(_BaseAttrDefWidget):
@@ -311,37 +336,13 @@ class UnknownAttrWidget(_BaseAttrDefWidget):
             self._input_widget.setText(str_value)
 
 
-class SeparatorAttrWidget(_BaseAttrDefWidget):
-    def _ui_init(self):
-        input_widget = QtWidgets.QWidget(self)
-        input_widget.setObjectName("Separator")
-        input_widget.setMinimumHeight(2)
-        input_widget.setMaximumHeight(2)
-
-        self._input_widget = input_widget
-
-        self.main_layout.addWidget(input_widget, 0)
-
-
-class LabelAttrWidget(_BaseAttrDefWidget):
-    def _ui_init(self):
-        input_widget = QtWidgets.QLabel(self)
-        label = self.attr_def.label
-        if label:
-            input_widget.setText(str(label))
-
-        self._input_widget = input_widget
-
-        self.main_layout.addWidget(input_widget, 0)
-
-
 class FileAttrWidget(_BaseAttrDefWidget):
     def _ui_init(self):
         self.multipath = self.attr_def.multipath
         if self.multipath:
-            from .files_widget import FilesWidget
+            from .files_widget import MultiFilesWidget
 
-            input_widget = FilesWidget(self)
+            input_widget = MultiFilesWidget(self)
 
             self.label_horizontal = False
         else:
@@ -353,23 +354,18 @@ class FileAttrWidget(_BaseAttrDefWidget):
             self.attr_def.folders, self.attr_def.extensions
         )
 
-        # TODO implement
-        # input_widget.value_changed.connect(self._on_value_change)
+        input_widget.value_changed.connect(self._on_value_change)
 
         self._input_widget = input_widget
 
         self.main_layout.addWidget(input_widget, 0)
 
     def _on_value_change(self):
-        new_value = self._input_widget.get_value()
+        new_value = self.current_value()
         self.value_changed.emit(new_value, self.attr_def.id)
 
     def current_value(self):
-        if self.multiline:
-            return self._input_widget.toPlainText()
-        return self._input_widget.text()
+        return self._input_widget.current_value()
 
     def set_value(self, value, multivalue=False):
-        return
-        if value != self.current_value():
-            self._input_widget.set_value(value, multivalue)
+        self._input_widget.set_value(value, multivalue)

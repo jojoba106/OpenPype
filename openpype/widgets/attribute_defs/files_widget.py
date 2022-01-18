@@ -30,6 +30,7 @@ class DropEmpty(QtWidgets.QWidget):
     def __init__(self, parent):
         super(DropEmpty, self).__init__(parent)
         label_widget = QtWidgets.QLabel(self._drop_enabled_text, self)
+        label_widget.setAlignment(QtCore.Qt.AlignCenter)
 
         label_widget.setAttribute(QtCore.Qt.WA_TranslucentBackground)
 
@@ -367,9 +368,11 @@ class FilesView(QtWidgets.QListView):
         return super(FilesView, self).event(event)
 
 
-class FilesWidget(QtWidgets.QFrame):
+class MultiFilesWidget(QtWidgets.QFrame):
+    value_changed = QtCore.Signal()
+
     def __init__(self, parent):
-        super(FilesWidget, self).__init__(parent)
+        super(MultiFilesWidget, self).__init__(parent)
         self.setAcceptDrops(True)
 
         empty_widget = DropEmpty(self)
@@ -389,6 +392,8 @@ class FilesWidget(QtWidgets.QFrame):
         files_proxy_model.rowsInserted.connect(self._on_rows_inserted)
         files_proxy_model.rowsRemoved.connect(self._on_rows_removed)
 
+        self._in_set_value = False
+
         self._empty_widget = empty_widget
         self._files_model = files_model
         self._files_proxy_model = files_proxy_model
@@ -397,8 +402,38 @@ class FilesWidget(QtWidgets.QFrame):
         self._widgets_by_id = {}
 
     def set_value(self, value, multivalue):
+        self._in_set_value = True
+        widget_ids = set(self._widgets_by_id.keys())
+        self._remove_item_by_ids(widget_ids)
+
+        # TODO how to display multivalue?
+        all_same = True
+        if multivalue:
+            new_value = set()
+            item_row = None
+            for _value in value:
+                _value_set = set(_value)
+                new_value |= _value_set
+                if item_row is None:
+                    item_row = _value_set
+                elif item_row != _value_set:
+                    all_same = False
+            value = new_value
+
         if value:
             self._add_filepaths(value)
+        self._in_set_value = False
+
+    def current_value(self):
+        model = self._files_proxy_model
+        filepaths = set()
+        for row in range(model.rowCount()):
+            index = model.index(row, 0)
+            dirpath = index.data(DIRPATH_ROLE)
+            filenames = index.data(FILENAMES_ROLE)
+            for filename in filenames:
+                filepaths.add(os.path.join(dirpath, filename))
+        return filepaths
 
     def set_filters(self, folders_allowed, exts_filter):
         self._files_proxy_model.set_allow_folders(folders_allowed)
@@ -423,6 +458,9 @@ class FilesWidget(QtWidgets.QFrame):
 
         self._files_proxy_model.sort(0)
 
+        if not self._in_set_value:
+            self.value_changed.emit()
+
     def _on_rows_removed(self, parent_index, start_row, end_row):
         available_item_ids = set()
         for row in range(self._files_proxy_model.rowCount()):
@@ -439,6 +477,9 @@ class FilesWidget(QtWidgets.QFrame):
             widget = self._widgets_by_id.pop(item_id)
             widget.setVisible(False)
             widget.deleteLater()
+
+        if not self._in_set_value:
+            self.value_changed.emit()
 
     def _on_remove_request(self, item_id):
         found_index = None
@@ -460,7 +501,7 @@ class FilesWidget(QtWidgets.QFrame):
 
     def sizeHint(self):
         # Get size hints of widget and visible widgets
-        result = super(FilesWidget, self).sizeHint()
+        result = super(MultiFilesWidget, self).sizeHint()
         if not self._files_view.isVisible():
             not_visible_hint = self._files_view.sizeHint()
         else:
@@ -517,15 +558,17 @@ class FilesWidget(QtWidgets.QFrame):
 
 
 class SingleFileWidget(QtWidgets.QWidget):
+    value_changed = QtCore.Signal()
+
     def __init__(self, parent):
         super(SingleFileWidget, self).__init__(parent)
 
         self.setAcceptDrops(True)
 
         filepath_input = QtWidgets.QLineEdit(self)
-        # TODO implement file dialog logic in '_on_browse_clicked'
+
         browse_btn = QtWidgets.QPushButton("Browse", self)
-        # browse_btn.setVisible(False)
+        browse_btn.setVisible(False)
 
         layout = QtWidgets.QHBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -535,20 +578,38 @@ class SingleFileWidget(QtWidgets.QWidget):
         browse_btn.clicked.connect(self._on_browse_clicked)
         filepath_input.textChanged.connect(self._on_text_change)
 
+        self._in_set_value = False
+
         self._filepath_input = filepath_input
+        self._folders_allowed = False
+        self._exts_filter = []
 
     def set_value(self, value, multivalue):
-        # TODO multivalue
+        self._in_set_value = True
+
+        if multivalue:
+            set_value = set(value)
+            if len(set_value) == 1:
+                value = tuple(set_value)[0]
+            else:
+                value = "< Multiselection >"
         self._filepath_input.setText(value)
 
+        self._in_set_value = False
+
+    def current_value(self):
+        return self._filepath_input.text()
+
     def set_filters(self, folders_allowed, exts_filter):
-        print("filters", folders_allowed, exts_filter)
+        self._folders_allowed = folders_allowed
+        self._exts_filter = exts_filter
 
     def _on_text_change(self, text):
-        print("text changed to:", text)
+        if not self._in_set_value:
+            self.value_changed.emit()
 
     def _on_browse_clicked(self):
-        # TODO implement
+        # TODO implement file dialog logic in '_on_browse_clicked'
         print("_on_browse_clicked")
 
     def dragEnterEvent(self, event):
