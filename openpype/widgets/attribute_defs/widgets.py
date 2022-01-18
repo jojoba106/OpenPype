@@ -10,7 +10,9 @@ from openpype.pipeline.lib import (
     TextDef,
     EnumDef,
     BoolDef,
-    FileDef
+    FileDef,
+    UISeparatorDef,
+    UILabelDef
 )
 from openpype.widgets.nice_checkbox import NiceCheckbox
 
@@ -39,6 +41,12 @@ def create_widget_for_attr_def(attr_def, parent=None):
     if isinstance(attr_def, FileDef):
         return FileAttrWidget(attr_def, parent)
 
+    if isinstance(attr_def, UISeparatorDef):
+        return SeparatorAttrWidget(attr_def, parent)
+
+    if isinstance(attr_def, UILabelDef):
+        return LabelAttrWidget(attr_def, parent)
+
     raise ValueError("Unknown attribute definition \"{}\"".format(
         str(type(attr_def))
     ))
@@ -46,6 +54,7 @@ def create_widget_for_attr_def(attr_def, parent=None):
 
 class _BaseAttrDefWidget(QtWidgets.QWidget):
     value_changed = QtCore.Signal(object, uuid.UUID)
+    label_horizontal = True
 
     def __init__(self, attr_def, parent):
         super(_BaseAttrDefWidget, self).__init__(parent)
@@ -75,7 +84,7 @@ class _BaseAttrDefWidget(QtWidgets.QWidget):
 
     def set_value(self, value, multivalue=False):
         raise NotImplementedError(
-            "Method 'current_value' is not implemented. {}".format(
+            "Method 'set_value' is not implemented. {}".format(
                 self.__class__.__name__
             )
         )
@@ -302,6 +311,30 @@ class UnknownAttrWidget(_BaseAttrDefWidget):
             self._input_widget.setText(str_value)
 
 
+class SeparatorAttrWidget(_BaseAttrDefWidget):
+    def _ui_init(self):
+        input_widget = QtWidgets.QWidget(self)
+        input_widget.setObjectName("Separator")
+        input_widget.setMinimumHeight(2)
+        input_widget.setMaximumHeight(2)
+
+        self._input_widget = input_widget
+
+        self.main_layout.addWidget(input_widget, 0)
+
+
+class LabelAttrWidget(_BaseAttrDefWidget):
+    def _ui_init(self):
+        input_widget = QtWidgets.QLabel(self)
+        label = self.attr_def.label
+        if label:
+            input_widget.setText(str(label))
+
+        self._input_widget = input_widget
+
+        self.main_layout.addWidget(input_widget, 0)
+
+
 class SingleFileWidget(QtWidgets.QWidget):
     def __init__(self, parent):
         super(SingleFileWidget, self).__init__(parent)
@@ -376,6 +409,8 @@ class FileAttrWidget(_BaseAttrDefWidget):
         if self.multipath:
             from .files_widget import FilesWidget
             input_widget = FilesWidget(self)
+
+            self.label_horizontal = False
         else:
             input_widget = SingleFileWidget(self)
 
