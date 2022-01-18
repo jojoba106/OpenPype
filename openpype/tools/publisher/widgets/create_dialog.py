@@ -673,7 +673,7 @@ class CreateDialog(QtWidgets.QDialog):
         variant = self.variant_input.text()
         asset_name = self._asset_name
         task_name = self._task_name
-        options = {}
+        pre_create_data = self._pre_create_attributes_widget.current_value()
         # Where to define these data?
         # - what data show be stored?
         instance_data = {
@@ -686,7 +686,7 @@ class CreateDialog(QtWidgets.QDialog):
         error_info = None
         try:
             self.controller.create(
-                creator_identifier, subset_name, instance_data, options
+                creator_identifier, subset_name, instance_data, pre_create_data
             )
 
         except CreatorError as exc:

@@ -209,14 +209,16 @@ class Creator(BaseCreator):
     allowed_filename_exts = None
 
     @abstractmethod
-    def create(self, subset_name, instance_data, options=None):
+    def create(self, subset_name, instance_data, pre_create_data):
         """Create new instance and store it.
 
         Ideally should be stored to workfile using host implementation.
 
         Args:
             subset_name(str): Subset name of created instance.
-            instance_data(dict):
+            instance_data(dict): Base data for instance.
+            pre_create_data(dict): Data based on pre creation attributes.
+                Those may affect how creator works.
         """
 
         # instance = CreatedInstance(
