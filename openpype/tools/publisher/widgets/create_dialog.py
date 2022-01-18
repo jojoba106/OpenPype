@@ -17,7 +17,7 @@ from openpype.pipeline.create import (
 from .widgets import IconValuePixmapLabel
 from .assets_widget import CreateDialogAssetsWidget
 from .tasks_widget import CreateDialogTasksWidget
-from .files_widget import FilesWidget
+from .precreate_widget import AttributesWidget
 from ..constants import (
     VARIANT_TOOLTIP,
     CREATOR_IDENTIFIER_ROLE,
@@ -216,7 +216,19 @@ class CreateDialog(QtWidgets.QDialog):
         context_layout.addWidget(assets_widget, 2)
         context_layout.addWidget(tasks_widget, 1)
 
-        files_widget = FilesWidget(self)
+        pre_create_scroll_area = QtWidgets.QScrollArea(self)
+        pre_create_contet_widget = QtWidgets.QWidget(pre_create_scroll_area)
+        pre_create_scroll_area.setWidget(pre_create_contet_widget)
+        pre_create_scroll_area.setWidgetResizable(True)
+
+        pre_create_contet_layout = QtWidgets.QVBoxLayout(
+            pre_create_contet_widget
+        )
+        pre_create_attributes_widget = AttributesWidget(
+            pre_create_contet_widget
+        )
+        pre_create_contet_layout.addWidget(pre_create_attributes_widget, 0)
+        pre_create_contet_layout.addStretch(1)
 
         creator_description_widget = CreatorDescriptionWidget(self)
         creator_description_widget.setVisible(False)
@@ -264,7 +276,7 @@ class CreateDialog(QtWidgets.QDialog):
         layout.setSpacing(10)
         layout.addWidget(context_widget, 1)
         layout.addWidget(mid_widget, 1)
-        layout.addWidget(files_widget, 1)
+        layout.addWidget(pre_create_scroll_area, 1)
 
         prereq_timer = QtCore.QTimer()
         prereq_timer.setInterval(50)
@@ -286,7 +298,7 @@ class CreateDialog(QtWidgets.QDialog):
 
         controller.add_plugins_refresh_callback(self._on_plugins_refresh)
 
-        self._files_widget = files_widget
+        self._pre_create_attributes_widget = pre_create_attributes_widget
         self._context_widget = context_widget
         self._assets_widget = assets_widget
         self._tasks_widget = tasks_widget
@@ -501,7 +513,7 @@ class CreateDialog(QtWidgets.QDialog):
 
         self._selected_creator = creator
         if not creator:
-            self._files_widget.set_file_filters(False, None)
+            self._pre_create_attributes_widget.set_attr_defs([])
             self._set_context_enabled(False)
             return
 
@@ -512,10 +524,9 @@ class CreateDialog(QtWidgets.QDialog):
             self._set_context_enabled(creator.create_allow_context_change)
             self._refresh_asset()
 
-        self._files_widget.set_filters(
-            creator.allow_folders,
-            creator.allowed_filename_exts
-        )
+        attr_defs = creator.get_pre_create_attr_defs()
+        self._pre_create_attributes_widget.set_attr_defs(attr_defs)
+
         default_variants = creator.get_default_variants()
         if not default_variants:
             default_variants = ["Main"]
