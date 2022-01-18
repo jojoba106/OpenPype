@@ -294,10 +294,14 @@ class BoolDef(AbtractAttrDef):
 class FileDef(AbtractAttrDef):
     """File definition.
 
+    It is possible to define filters of allowed file extensions and if supports
+    folders.
+
     Args:
         multipath(bool): Allow multiple path.
         folders(bool): Allow folder paths.
-        extensions(list<str>): Allow files with extensions.
+        extensions(list<str>): Allow files with extensions. Empty list will
+            allow all extensions and None will disable files completely.
         default(str, list<str>): Defautl value.
     """
 

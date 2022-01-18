@@ -39,12 +39,14 @@ class AttributesWidget(QtWidgets.QWidget):
         for attr_def in attr_defs:
             widget = create_widget_for_attr_def(attr_def, self)
 
-            if widget.label_horizontal:
-                col_num = 1
+            if not attr_def.is_value_def:
+                expand_cols = 2
+            elif widget.label_horizontal:
                 expand_cols = 1
             else:
-                col_num = 0
                 expand_cols = 2
+
+            col_num = 2 - expand_cols
 
             if attr_def.label:
                 label_widget = QtWidgets.QLabel(attr_def.label, self)
