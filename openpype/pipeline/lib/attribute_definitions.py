@@ -39,6 +39,7 @@ class AbtractAttrDef:
         label(str): Attribute label.
         tooltip(str): Attribute tooltip.
     """
+    is_value_def = True
 
     def __init__(self, key, default, label=None, tooltip=None):
         self.key = key
@@ -67,6 +68,33 @@ class AbtractAttrDef:
         """
         pass
 
+
+# -----------------------------------------
+# UI attribute definitoins won't hold value
+# -----------------------------------------
+
+class UIDef(AbtractAttrDef):
+    is_value_def = False
+
+    def __init__(self, key=None, default=None, *args, **kwargs):
+        super(UIDef, self).__init__(key, default, *args, **kwargs)
+
+    def convert_value(self, value):
+        return value
+
+
+class UISeparatorDef(UIDef):
+    pass
+
+
+class UILabelDef(UIDef):
+    def __init__(self, label):
+        super(UILabelDef, self).__init__(label=label)
+
+
+# ---------------------------------------
+# Attribute defintioins should hold value
+# ---------------------------------------
 
 class UnknownDef(AbtractAttrDef):
     """Definition is not known because definition is not available."""
