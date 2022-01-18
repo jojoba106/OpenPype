@@ -80,7 +80,7 @@ class BaseCreator:
         self.create_context.creator_removed_instance(instance)
 
     @abstractmethod
-    def create(self, options=None):
+    def create(self):
         """Create new instance.
 
         Replacement of `process` method from avalon implementation.
@@ -266,6 +266,22 @@ class Creator(BaseCreator):
         """
 
         return None
+
+    def get_pre_create_attr_defs(self):
+        """Plugin attribute definitions needed for creation.
+
+        Attribute definitions of plugin that define how creation will work.
+        Values of these definitions are passed to `create` method.
+
+        NOTE:
+        Convert method should be implemented which should care about updating
+        keys/values when plugin attributes change.
+
+        Returns:
+            list<AbtractAttrDef>: Attribute definitions that can be tweaked for
+                created instance.
+        """
+        return []
 
 
 class AutoCreator(BaseCreator):
