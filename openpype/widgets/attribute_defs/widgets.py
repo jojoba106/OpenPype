@@ -335,83 +335,18 @@ class LabelAttrWidget(_BaseAttrDefWidget):
         self.main_layout.addWidget(input_widget, 0)
 
 
-class SingleFileWidget(QtWidgets.QWidget):
-    def __init__(self, parent):
-        super(SingleFileWidget, self).__init__(parent)
-
-        self.setAcceptDrops(True)
-
-        filepath_input = QtWidgets.QLineEdit(self)
-        # TODO implement file dialog logic in '_on_browse_clicked'
-        browse_btn = QtWidgets.QPushButton("Browse", self)
-        # browse_btn.setVisible(False)
-
-        layout = QtWidgets.QHBoxLayout(self)
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.addWidget(filepath_input, 1)
-        layout.addWidget(browse_btn, 0)
-
-        browse_btn.clicked.connect(self._on_browse_clicked)
-        filepath_input.textChanged.connect(self._on_text_change)
-
-        self._filepath_input = filepath_input
-
-    def set_value(self, value, multivalue):
-        # TODO multivalue
-        self._filepath_input.setText(value)
-
-    def set_filters(self, folders_allowed, exts_filter):
-        print("filters", folders_allowed, exts_filter)
-
-    def _on_text_change(self, text):
-        print("text changed to:", text)
-
-    def _on_browse_clicked(self):
-        # TODO implement
-        print("_on_browse_clicked")
-
-    def dragEnterEvent(self, event):
-        mime_data = event.mimeData()
-        if not mime_data.hasUrls():
-            return
-
-        filepaths = []
-        for url in mime_data.urls():
-            filepath = url.toLocalFile()
-            if os.path.exists(filepath):
-                filepaths.append(filepath)
-
-        # TODO add folder, extensions check
-        if len(filepaths) == 1:
-            event.setDropAction(QtCore.Qt.CopyAction)
-            event.accept()
-
-    def dragLeaveEvent(self, event):
-        event.accept()
-
-    def dropEvent(self, event):
-        mime_data = event.mimeData()
-        if mime_data.hasUrls():
-            filepaths = []
-            for url in mime_data.urls():
-                filepath = url.toLocalFile()
-                if os.path.exists(filepath):
-                    filepaths.append(filepath)
-            # TODO filter check
-            if len(filepaths) == 1:
-                self.set_value(filepaths[0], False)
-        event.accept()
-
-
 class FileAttrWidget(_BaseAttrDefWidget):
     def _ui_init(self):
         self.multipath = self.attr_def.multipath
         if self.multipath:
             from .files_widget import FilesWidget
+
             input_widget = FilesWidget(self)
 
             self.label_horizontal = False
         else:
+            from .files_widget import SingleFileWidget
+
             input_widget = SingleFileWidget(self)
 
         input_widget.set_filters(
