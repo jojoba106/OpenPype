@@ -299,6 +299,7 @@ class FileDef(AbtractAttrDef):
                     raise TypeError((
                         "'default' argument must be 'str' not '{}'"
                     ).format(type(default)))
+                default = default.strip()
 
         self.multipath = multipath
         self.folders = folders
@@ -318,20 +319,22 @@ class FileDef(AbtractAttrDef):
     def convert_value(self, value):
         if isinstance(value, six.string_types):
             if self.multipath:
-                value = [value]
+                value = [value.strip()]
+            else:
+                value = value.strip()
             return value
 
         if isinstance(value, (tuple, list, set)):
             _value = []
             for item in value:
                 if isinstance(item, six.string_types):
-                    _value.append(item)
+                    _value.append(item.strip())
 
             if self.multipath:
                 return _value
 
             if not _value:
                 return self.default
-            return _value[0]
+            return _value[0].strip()
 
-        return str(value)
+        return str(value).strip()
